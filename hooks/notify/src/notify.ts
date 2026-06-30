@@ -68,7 +68,7 @@ function readStdin(): string {
   }
 }
 
-function extractToolCalls(transcriptPath: string): string[] {
+export function extractToolCalls(transcriptPath: string): string[] {
   try {
     const lines = readFileSync(transcriptPath, "utf8").trim().split("\n");
     const toolCalls: string[] = [];
@@ -94,7 +94,7 @@ function extractToolCalls(transcriptPath: string): string[] {
   }
 }
 
-function formatToolCall(block: ToolUseBlock): string {
+export function formatToolCall(block: ToolUseBlock): string {
   const input = block.input ?? {};
   const name = block.name;
 
@@ -116,7 +116,7 @@ function formatToolCall(block: ToolUseBlock): string {
   return name;
 }
 
-function basename(p: string): string {
+export function basename(p: string): string {
   return p.split("/").pop() ?? p;
 }
 
@@ -126,7 +126,7 @@ interface SessionContext {
   duration: string;
 }
 
-function getSessionContext(transcriptPath: string): SessionContext {
+export function getSessionContext(transcriptPath: string): SessionContext {
   // Project name from transcript path: ~/.claude/projects/-Users-...-myproject/session.jsonl
   const parts = transcriptPath.split("/");
   const projectDir = parts[parts.length - 2] ?? "";
@@ -158,7 +158,7 @@ function getSessionContext(transcriptPath: string): SessionContext {
   return { project, branch, duration };
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   loadDotEnv();
 
   const channels = buildChannels();
@@ -197,7 +197,11 @@ async function main(): Promise<void> {
   })));
 }
 
-main().catch((err) => {
-  process.stderr.write(`claude-hooks error: ${err.message}\n`);
-  process.exit(1);
-});
+// Only run when executed directly, not when imported by tests
+const isMain = process.argv[1]?.endsWith("notify.ts") || process.argv[1]?.endsWith("notify.js");
+if (isMain) {
+  main().catch((err) => {
+    process.stderr.write(`claude-hooks error: ${err.message}\n`);
+    process.exit(1);
+  });
+}

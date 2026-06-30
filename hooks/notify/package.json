@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "notify": "tsx src/notify.ts"
+    "notify": "tsx src/notify.ts",
+    "test": "node --import tsx/esm --test src/notify.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.31.0",
