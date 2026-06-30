@@ -128,6 +128,10 @@ SLACK_WEBHOOK_URL=
 # Discord
 DISCORD_WEBHOOK_URL=
 
+# ntfy
+NTFY_TOPIC=
+NTFY_SERVER=https://ntfy.sh  # optional, change for self-hosted
+
 # LLM provider (pick one)
 OLLAMA_HOST=http://localhost:11434
 OLLAMA_MODEL=llama3.2
