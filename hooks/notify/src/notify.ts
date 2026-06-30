@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { TelegramChannel } from "./channels/telegram.js";
 import { SlackChannel } from "./channels/slack.js";
+import { DiscordChannel } from "./channels/discord.js";
 import { summarizeActions } from "./summarize.js";
 import type { Channel } from "./channels/index.js";
 
@@ -51,6 +52,9 @@ function buildChannels(): Channel[] {
 
   const webhookUrl = process.env.SLACK_WEBHOOK_URL;
   if (webhookUrl) channels.push(new SlackChannel(webhookUrl));
+
+  const discordUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (discordUrl) channels.push(new DiscordChannel(discordUrl));
 
   return channels;
 }
