@@ -171,12 +171,12 @@ async function main(): Promise<void> {
   let hookInput: HookInput = {};
   try { hookInput = JSON.parse(raw); } catch {}
 
-  let text = "⚡ Claude Code needs your attention";
+  const notification = { summary: "Claude Code needs your attention", context: "" };
 
   if (hookInput.transcript_path) {
     const ctx = getSessionContext(hookInput.transcript_path);
     const ctxParts = [ctx.project, ctx.branch, ctx.duration].filter(Boolean);
-    const ctxTag = ctxParts.length > 0 ? `<code>${ctxParts.join(" · ")}</code> ` : "";
+    notification.context = ctxParts.join(" · ");
 
     const toolCalls = extractToolCalls(hookInput.transcript_path);
 
@@ -188,16 +188,11 @@ async function main(): Promise<void> {
         // no LLM creds — skip summary
       }
 
-      const escHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      if (aiSummary) {
-        text = `⚡ ${ctxTag}${aiSummary}`;
-      } else {
-        text = `⚡ ${ctxTag}\n${toolCalls.map(t => `• ${escHtml(t)}`).join("\n")}`;
-      }
+      notification.summary = aiSummary || toolCalls.map(t => `• ${t}`).join("\n");
     }
   }
 
-  await Promise.all(channels.map(ch => ch.send(text).catch(err => {
+  await Promise.all(channels.map(ch => ch.send(notification).catch(err => {
     process.stderr.write(`claude-hooks: channel error: ${err.message}\n`);
   })));
 }

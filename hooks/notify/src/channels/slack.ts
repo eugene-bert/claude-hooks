@@ -1,4 +1,4 @@
-import type { Channel } from "./index.js";
+import type { Channel, Notification } from "./index.js";
 
 export class SlackChannel implements Channel {
   private webhookUrl: string;
@@ -7,11 +7,14 @@ export class SlackChannel implements Channel {
     this.webhookUrl = webhookUrl;
   }
 
-  async send(message: string): Promise<void> {
+  async send(notification: Notification): Promise<void> {
+    const ctx = notification.context ? `\`${notification.context}\` ` : "";
+    const text = `⚡ ${ctx}${notification.summary}`;
+
     const res = await fetch(this.webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: message }),
+      body: JSON.stringify({ text }),
     });
     if (!res.ok) {
       const body = await res.text();

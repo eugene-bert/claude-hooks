@@ -1,4 +1,4 @@
-import type { Channel } from "./index.js";
+import type { Channel, Notification } from "./index.js";
 
 export class DiscordChannel implements Channel {
   private webhookUrl: string;
@@ -7,11 +7,14 @@ export class DiscordChannel implements Channel {
     this.webhookUrl = webhookUrl;
   }
 
-  async send(message: string): Promise<void> {
+  async send(notification: Notification): Promise<void> {
+    const ctx = notification.context ? `\`${notification.context}\` ` : "";
+    const content = `⚡ ${ctx}${notification.summary}`;
+
     const res = await fetch(this.webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: message }),
+      body: JSON.stringify({ content }),
     });
     if (!res.ok) {
       const body = await res.text();
