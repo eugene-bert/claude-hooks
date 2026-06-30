@@ -12,12 +12,17 @@ When Claude Code completes work and waits for your input, you get a notification
 ## Installation
 
 ```bash
+npx @eugene-bert/claude-hooks install
+```
+
+Then edit `~/.claude/hooks/.env` and fill in your channel credentials.
+
+Or clone manually:
+```bash
 git clone https://github.com/eugene-bert/claude-hooks
 cd claude-hooks
 bash install.sh
 ```
-
-Then edit `~/.claude/hooks/.env` and fill in your channel credentials.
 
 ## Channels
 
