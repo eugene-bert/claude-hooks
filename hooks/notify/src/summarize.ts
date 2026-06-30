@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import Anthropic from "@anthropic-ai/sdk";
 import { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
 import AnthropicBedrock from "@anthropic-ai/bedrock-sdk";
@@ -22,7 +23,6 @@ const PROMPT = (toolCalls: string[]): string => {
   const promptFile = process.env.CLAUDE_NOTIFY_PROMPT_FILE;
   if (promptFile) {
     try {
-      const { readFileSync } = require("fs");
       template = readFileSync(promptFile, "utf8");
     } catch {}
   } else if (process.env.CLAUDE_NOTIFY_PROMPT) {
