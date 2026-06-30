@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import { TelegramChannel } from "./channels/telegram.js";
+import { summarizeActions } from "./summarize.js";
 import type { Channel } from "./channels/index.js";
 
 interface HookInput {
@@ -59,7 +60,7 @@ function readStdin(): string {
   }
 }
 
-function summarizeTranscript(transcriptPath: string): string {
+function extractToolCalls(transcriptPath: string): string[] {
   try {
     const lines = readFileSync(transcriptPath, "utf8").trim().split("\n");
     const toolCalls: string[] = [];
@@ -79,11 +80,9 @@ function summarizeTranscript(transcriptPath: string): string {
       }
     }
 
-    // Last 8 tool calls only
-    const recent = toolCalls.slice(-8);
-    return recent.length > 0 ? recent.map(t => `• ${t}`).join("\n") : "";
+    return toolCalls.slice(-10);
   } catch {
-    return "";
+    return [];
   }
 }
 
@@ -98,7 +97,6 @@ function formatToolCall(block: ToolUseBlock): string {
   if (name === "WebFetch") return `Fetch: ${String(input.url ?? "").slice(0, 60)}`;
   if (name === "WebSearch") return `Search: ${String(input.query ?? "").slice(0, 50)}`;
 
-  // MCP tools: mcp__server__action → server: action
   if (name.startsWith("mcp__")) {
     const parts = name.split("__");
     const server = parts[1] ?? "";
@@ -127,14 +125,28 @@ async function main(): Promise<void> {
   let hookInput: HookInput = {};
   try { hookInput = JSON.parse(raw); } catch {}
 
-  let summary = "";
-  if (hookInput.transcript_path) {
-    summary = summarizeTranscript(hookInput.transcript_path);
-  }
+  let text = "⚡ Claude Code needs your attention";
 
-  const text = summary
-    ? `⚡ Claude Code needs your attention\n\n${summary}`
-    : "⚡ Claude Code needs your attention";
+  if (hookInput.transcript_path) {
+    const toolCalls = extractToolCalls(hookInput.transcript_path);
+
+    if (toolCalls.length > 0) {
+      let aiSummary = "";
+      try {
+        aiSummary = await summarizeActions(toolCalls);
+      } catch {
+        // no LLM creds — skip summary
+      }
+
+      const detail = toolCalls.map(t => `• ${t}`).join("\n");
+
+      if (aiSummary) {
+        text = `⚡ Claude Code needs your attention\n\n${aiSummary}`;
+      } else {
+        text = `⚡ Claude Code needs your attention\n\n${detail}`;
+      }
+    }
+  }
 
   await channel.send(text);
 }
