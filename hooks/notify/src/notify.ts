@@ -68,6 +68,26 @@ function readStdin(): string {
   }
 }
 
+export function extractLastAssistantText(transcriptPath: string): string {
+  try {
+    const lines = readFileSync(transcriptPath, "utf8").trim().split("\n");
+    for (let i = lines.length - 1; i >= 0; i--) {
+      let entry: TranscriptEntry;
+      try { entry = JSON.parse(lines[i]); } catch { continue; }
+      if (entry.message?.role !== "assistant") continue;
+      const content = entry.message.content;
+      if (!Array.isArray(content)) continue;
+      for (const block of content as ToolUseBlock[]) {
+        if ((block as unknown as { type: string; text?: string }).type === "text") {
+          const text = (block as unknown as { text: string }).text ?? "";
+          if (text.trim()) return text.slice(0, 500);
+        }
+      }
+    }
+  } catch {}
+  return "";
+}
+
 export function extractToolCalls(transcriptPath: string): string[] {
   try {
     const lines = readFileSync(transcriptPath, "utf8").trim().split("\n");
@@ -181,9 +201,10 @@ export async function main(): Promise<void> {
     const toolCalls = extractToolCalls(hookInput.transcript_path);
 
     if (toolCalls.length > 0) {
+      const lastMessage = extractLastAssistantText(hookInput.transcript_path);
       let aiSummary = "";
       try {
-        aiSummary = await summarizeActions(toolCalls);
+        aiSummary = await summarizeActions(toolCalls, lastMessage);
       } catch {
         // no LLM creds — skip summary
       }
