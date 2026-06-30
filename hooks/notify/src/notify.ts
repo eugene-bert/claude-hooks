@@ -1,7 +1,11 @@
-import { readFileSync } from "fs";
+import { readFileSync, existsSync, appendFileSync, unlinkSync, writeFileSync } from "fs";
 import { TelegramChannel } from "./channels/telegram.js";
 import { summarizeActions } from "./summarize.js";
 import type { Channel } from "./channels/index.js";
+
+const HOOKS_DIR = `${process.env.HOME}/.claude/hooks`;
+const SESSIONS_FILE = `${HOOKS_DIR}/.notify-sessions`;
+const ARM_FILE = `${HOOKS_DIR}/.notify-arm`;
 
 interface HookInput {
   session_id?: string;
@@ -112,6 +116,25 @@ function basename(p: string): string {
   return p.split("/").pop() ?? p;
 }
 
+function isSessionEnabled(sessionId: string): boolean {
+  // Check arm file — if present, register this session and activate
+  if (existsSync(ARM_FILE)) {
+    try {
+      appendFileSync(SESSIONS_FILE, `${sessionId}\n`);
+      unlinkSync(ARM_FILE);
+    } catch {}
+    return true;
+  }
+
+  // Check sessions file
+  try {
+    const sessions = readFileSync(SESSIONS_FILE, "utf8").split("\n").map(s => s.trim()).filter(Boolean);
+    return sessions.includes(sessionId);
+  } catch {
+    return false;
+  }
+}
+
 async function main(): Promise<void> {
   loadDotEnv();
 
@@ -124,6 +147,12 @@ async function main(): Promise<void> {
   const raw = readStdin();
   let hookInput: HookInput = {};
   try { hookInput = JSON.parse(raw); } catch {}
+
+  // Session-based enable/disable
+  const sessionId = hookInput.session_id;
+  if (sessionId && !isSessionEnabled(sessionId)) {
+    process.exit(0);
+  }
 
   let text = "⚡ Claude Code needs your attention";
 
