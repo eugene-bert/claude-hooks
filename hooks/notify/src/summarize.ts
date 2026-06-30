@@ -68,8 +68,8 @@ async function summarizeViaBedrock(toolCalls: string[], lastMessage: string): Pr
     messages: [{ role: "user", content: PROMPT(toolCalls, lastMessage) }],
   });
 
-  const block = msg.content[0];
-  return block.type === "text" ? block.text.trim() : "";
+  const block = msg.content?.[0];
+  return block?.type === "text" ? (block as { type: "text"; text: string }).text.trim() : "";
 }
 
 async function summarizeViaAnthropic(toolCalls: string[], lastMessage: string): Promise<string> {
@@ -98,8 +98,8 @@ async function summarizeViaAnthropic(toolCalls: string[], lastMessage: string): 
     messages: [{ role: "user", content: PROMPT(toolCalls, lastMessage) }],
   });
 
-  const block = msg.content[0];
-  return block.type === "text" ? block.text.trim() : "";
+  const block = msg.content?.[0];
+  return block?.type === "text" ? (block as { type: "text"; text: string }).text.trim() : "";
 }
 
 async function summarizeViaOpenRouter(toolCalls: string[], lastMessage: string): Promise<string> {

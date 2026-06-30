@@ -33,18 +33,6 @@ fs.writeFileSync(settingsPath, JSON.stringify(s, null, 2) + "\n");
 console.log("  Wired Notification hook into", settingsPath);
 EOF
 
-# 4. Install slash commands
-mkdir -p "$HOME/.claude/commands"
-for cmd_file in "$REPO_DIR"/commands/*.md; do
-  name=$(basename "$cmd_file")
-  cp "$cmd_file" "$HOME/.claude/commands/$name"
-done
-echo "  Installed slash commands: $(ls "$REPO_DIR/commands/"*.md | xargs -I{} basename {} .md | tr '\n' ' ')"
-
 echo ""
 echo "Done. Restart Claude Code."
-echo ""
-echo "Usage:"
-echo "  /notify-on   — enable notifications for current session"
-echo "  /notify-off  — disable notifications for current session"
-echo "  (no sessions file = notify all sessions by default)"
+echo "Edit $HOOKS_ENV to configure your channels."
