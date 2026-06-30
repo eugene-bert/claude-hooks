@@ -117,7 +117,7 @@ function basename(p: string): string {
 }
 
 function isSessionEnabled(sessionId: string): boolean {
-  // Check arm file — if present, register this session and activate
+  // Arm file present → register this session and activate
   if (existsSync(ARM_FILE)) {
     try {
       appendFileSync(SESSIONS_FILE, `${sessionId}\n`);
@@ -126,12 +126,15 @@ function isSessionEnabled(sessionId: string): boolean {
     return true;
   }
 
-  // Check sessions file
+  // No sessions file → notify all sessions (default behaviour)
+  if (!existsSync(SESSIONS_FILE)) return true;
+
+  // Sessions file exists → only listed sessions are enabled
   try {
     const sessions = readFileSync(SESSIONS_FILE, "utf8").split("\n").map(s => s.trim()).filter(Boolean);
     return sessions.includes(sessionId);
   } catch {
-    return false;
+    return true;
   }
 }
 
