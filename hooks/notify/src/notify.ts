@@ -1,5 +1,6 @@
 import { readFileSync, existsSync } from "fs";
 import { TelegramChannel } from "./channels/telegram.js";
+import { SlackChannel } from "./channels/slack.js";
 import { summarizeActions } from "./summarize.js";
 import type { Channel } from "./channels/index.js";
 
@@ -50,6 +51,11 @@ function buildChannel(): Channel | null {
     const chatId = process.env.TELEGRAM_CHAT_ID;
     if (!token || !chatId) return null;
     return new TelegramChannel(token, chatId);
+  }
+  if (ch === "slack") {
+    const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+    if (!webhookUrl) return null;
+    return new SlackChannel(webhookUrl);
   }
   return null;
 }
