@@ -10,12 +10,17 @@ const DEFAULT_OLLAMA_MODEL = "llama3.2";
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 const DEFAULT_OPENROUTER_MODEL = "anthropic/claude-haiku-4-5";
 
-const PROMPT = (toolCalls: string[]) => `You are summarizing what a coding AI assistant just did in a terminal session.
+const DEFAULT_PROMPT_TEMPLATE = `You are summarizing what a coding AI assistant just did in a terminal session.
 Here are the last tool calls it made:
 
-${toolCalls.map(t => `- ${t}`).join("\n")}
+{{TOOL_CALLS}}
 
 Write 1-2 sentences in plain English summarizing what was accomplished. Be specific but concise. No fluff.`;
+
+const PROMPT = (toolCalls: string[]): string => {
+  const template = process.env.CLAUDE_NOTIFY_PROMPT ?? DEFAULT_PROMPT_TEMPLATE;
+  return template.replace("{{TOOL_CALLS}}", toolCalls.map(t => `- ${t}`).join("\n"));
+};
 
 async function summarizeViaOllama(toolCalls: string[]): Promise<string> {
   const host = process.env.OLLAMA_HOST ?? DEFAULT_OLLAMA_HOST;
