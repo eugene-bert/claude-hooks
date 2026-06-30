@@ -4,7 +4,15 @@
 [![npm](https://img.shields.io/npm/v/@eugene-bert/claude-hooks)](https://www.npmjs.com/package/@eugene-bert/claude-hooks)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Claude Code hooks that send AI-summarized notifications to Telegram, Slack, and Discord when Claude finishes a task.
+A collection of hooks for [Claude Code](https://claude.ai/code) that extend its behavior — notifications, automation, and more.
+
+## Hooks
+
+| Hook | Description |
+|------|-------------|
+| [notify](hooks/notify/) | AI-summarized notifications to Telegram, Slack, Discord, and ntfy |
+
+---
 
 ![Notification example](assets/notification-example.png)
 
