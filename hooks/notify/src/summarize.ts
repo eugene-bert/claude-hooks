@@ -1,8 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
 import AnthropicBedrock from "@anthropic-ai/bedrock-sdk";
-import { execSync } from "child_process";
-
 const MODEL = "claude-haiku-4-5-20251001";
 const VERTEX_MODEL = "claude-haiku-4-5@20251001";
 const DEFAULT_VERTEX_REGION = "us-east5";
@@ -18,14 +16,6 @@ Here are the last tool calls it made:
 ${toolCalls.map(t => `- ${t}`).join("\n")}
 
 Write 1-2 sentences in plain English summarizing what was accomplished. Be specific but concise. No fluff.`;
-
-function getGcloudProject(): string | null {
-  try {
-    return execSync("gcloud config get-value project 2>/dev/null", { encoding: "utf8" }).trim() || null;
-  } catch {
-    return null;
-  }
-}
 
 async function summarizeViaOllama(toolCalls: string[]): Promise<string> {
   const host = process.env.OLLAMA_HOST ?? DEFAULT_OLLAMA_HOST;
@@ -60,8 +50,7 @@ async function summarizeViaAnthropic(toolCalls: string[]): Promise<string> {
   const project =
     process.env.ANTHROPIC_VERTEX_PROJECT ||
     process.env.ANTHROPIC_VERTEX_PROJECT_ID ||
-    process.env.GOOGLE_CLOUD_PROJECT ||
-    getGcloudProject();
+    process.env.GOOGLE_CLOUD_PROJECT;
 
   let client: Anthropic | AnthropicVertex;
   let model: string;
