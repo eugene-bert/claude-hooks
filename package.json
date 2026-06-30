@@ -1,16 +1,11 @@
 {
-  "name": "claude-hooks",
+  "name": "@eugene-bert/claude-hooks",
   "version": "0.1.0",
   "description": "Claude Code hooks — AI-summarized notifications to Telegram, Slack, and Discord",
   "type": "module",
   "bin": {
-    "claude-hooks": "./bin/cli.js"
+    "claude-hooks": "bin/cli.js"
   },
-  "files": [
-    "bin/",
-    "hooks/",
-    ".env.example"
-  ],
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.31.0",
     "@anthropic-ai/sdk": "^0.107.0",
@@ -32,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/eugene-bert/claude-hooks"
+    "url": "git+https://github.com/eugene-bert/claude-hooks.git"
   },
   "homepage": "https://github.com/eugene-bert/claude-hooks#readme",
   "engines": {
