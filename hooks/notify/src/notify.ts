@@ -141,12 +141,10 @@ async function main(): Promise<void> {
         // no LLM creds — skip summary
       }
 
-      const detail = toolCalls.map(t => `• ${t}`).join("\n");
-
       if (aiSummary) {
-        text = `⚡ Claude Code needs your attention\n\n${aiSummary}`;
+        text = `⚡ ${aiSummary}`;
       } else {
-        text = `⚡ Claude Code needs your attention\n\n${detail}`;
+        text = `⚡\n${toolCalls.map(t => `• ${t}`).join("\n")}`;
       }
     }
   }
