@@ -1,10 +1,8 @@
-import { readFileSync, existsSync } from "fs";
+import { readFileSync } from "fs";
 import { TelegramChannel } from "./channels/telegram.js";
 import { SlackChannel } from "./channels/slack.js";
 import { summarizeActions } from "./summarize.js";
 import type { Channel } from "./channels/index.js";
-
-const SESSIONS_FILE = `${process.env.HOME}/.claude/hooks/.notify-sessions`;
 
 interface HookInput {
   session_id?: string;
@@ -44,20 +42,17 @@ function loadDotEnv(): void {
   }
 }
 
-function buildChannel(): Channel | null {
-  const ch = (process.env.NOTIFY_CHANNEL ?? "telegram").toLowerCase();
-  if (ch === "telegram") {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
-    if (!token || !chatId) return null;
-    return new TelegramChannel(token, chatId);
-  }
-  if (ch === "slack") {
-    const webhookUrl = process.env.SLACK_WEBHOOK_URL;
-    if (!webhookUrl) return null;
-    return new SlackChannel(webhookUrl);
-  }
-  return null;
+function buildChannels(): Channel[] {
+  const channels: Channel[] = [];
+
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (token && chatId) channels.push(new TelegramChannel(token, chatId));
+
+  const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+  if (webhookUrl) channels.push(new SlackChannel(webhookUrl));
+
+  return channels;
 }
 
 function readStdin(): string {
@@ -120,24 +115,11 @@ function basename(p: string): string {
   return p.split("/").pop() ?? p;
 }
 
-function isSessionEnabled(sessionId: string): boolean {
-  // No sessions file → notify all sessions (default behaviour)
-  if (!existsSync(SESSIONS_FILE)) return true;
-
-  // Sessions file exists → only listed sessions are enabled
-  try {
-    const sessions = readFileSync(SESSIONS_FILE, "utf8").split("\n").map(s => s.trim()).filter(Boolean);
-    return sessions.includes(sessionId);
-  } catch {
-    return true;
-  }
-}
-
 async function main(): Promise<void> {
   loadDotEnv();
 
-  const channel = buildChannel();
-  if (!channel) {
+  const channels = buildChannels();
+  if (channels.length === 0) {
     process.stderr.write("claude-hooks: no channel configured, skipping\n");
     process.exit(0);
   }
@@ -145,12 +127,6 @@ async function main(): Promise<void> {
   const raw = readStdin();
   let hookInput: HookInput = {};
   try { hookInput = JSON.parse(raw); } catch {}
-
-  // Session-based enable/disable
-  const sessionId = hookInput.session_id;
-  if (sessionId && !isSessionEnabled(sessionId)) {
-    process.exit(0);
-  }
 
   let text = "⚡ Claude Code needs your attention";
 
@@ -175,7 +151,7 @@ async function main(): Promise<void> {
     }
   }
 
-  await channel.send(text);
+  await Promise.all(channels.map(ch => ch.send(text)));
 }
 
 main().catch((err) => {
