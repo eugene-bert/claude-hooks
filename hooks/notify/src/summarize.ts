@@ -18,7 +18,16 @@ Here are the last tool calls it made:
 Write 1-2 sentences in plain English summarizing what was accomplished. Be specific but concise. No fluff.`;
 
 const PROMPT = (toolCalls: string[]): string => {
-  const template = process.env.CLAUDE_NOTIFY_PROMPT ?? DEFAULT_PROMPT_TEMPLATE;
+  let template = DEFAULT_PROMPT_TEMPLATE;
+  const promptFile = process.env.CLAUDE_NOTIFY_PROMPT_FILE;
+  if (promptFile) {
+    try {
+      const { readFileSync } = require("fs");
+      template = readFileSync(promptFile, "utf8");
+    } catch {}
+  } else if (process.env.CLAUDE_NOTIFY_PROMPT) {
+    template = process.env.CLAUDE_NOTIFY_PROMPT;
+  }
   return template.replace("{{TOOL_CALLS}}", toolCalls.map(t => `- ${t}`).join("\n"));
 };
 
