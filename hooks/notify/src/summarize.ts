@@ -9,6 +9,8 @@ const DEFAULT_VERTEX_REGION = "us-east5";
 const BEDROCK_MODEL = "anthropic.claude-haiku-4-5-20251001-v1:0";
 const DEFAULT_OLLAMA_HOST = "http://localhost:11434";
 const DEFAULT_OLLAMA_MODEL = "llama3.2";
+const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
+const DEFAULT_OPENROUTER_MODEL = "anthropic/claude-haiku-4-5";
 
 const PROMPT = (toolCalls: string[]) => `You are summarizing what a coding AI assistant just did in a terminal session.
 Here are the last tool calls it made:
@@ -85,9 +87,33 @@ async function summarizeViaAnthropic(toolCalls: string[]): Promise<string> {
   return block.type === "text" ? block.text.trim() : "";
 }
 
+async function summarizeViaOpenRouter(toolCalls: string[]): Promise<string> {
+  const model = process.env.OPENROUTER_MODEL ?? DEFAULT_OPENROUTER_MODEL;
+  const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "HTTP-Referer": "https://github.com/eugene-bert/claude-hooks",
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 100,
+      messages: [{ role: "user", content: PROMPT(toolCalls) }],
+    }),
+  });
+
+  if (!res.ok) throw new Error(`OpenRouter error ${res.status}`);
+  const data = await res.json() as { choices: { message: { content: string } }[] };
+  return data.choices[0]?.message.content.trim() ?? "";
+}
+
 export async function summarizeActions(toolCalls: string[]): Promise<string> {
   if (process.env.OLLAMA_MODEL || process.env.OLLAMA_HOST) {
     return summarizeViaOllama(toolCalls);
+  }
+  if (process.env.OPENROUTER_API_KEY) {
+    return summarizeViaOpenRouter(toolCalls);
   }
   if (process.env.AWS_ACCESS_KEY_ID || process.env.AWS_PROFILE) {
     return summarizeViaBedrock(toolCalls);
