@@ -83,7 +83,7 @@ async function summarizeViaOpenRouter(toolCalls: string[]): Promise<string> {
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      "HTTP-Referer": "https://github.com/eugene-bert/claude-hooks",
+      "HTTP-Referer": process.env.OPENROUTER_APP_URL ?? "https://github.com/eugene-bert/claude-hooks",
     },
     body: JSON.stringify({
       model,
