@@ -6,6 +6,8 @@
 
 Claude Code hooks that send AI-summarized notifications to Telegram, Slack, and Discord when Claude finishes a task.
 
+![Notification example](assets/notification-example.png)
+
 ## What it does
 
 When Claude Code completes work and waits for your input, you get a notification with an AI-generated summary of what was done — not just a raw list of tool calls.
