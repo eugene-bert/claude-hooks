@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { writeFileSync, mkdirSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { formatToolCall, basename, extractToolCalls, getSessionContext } from "./notify.js";
+import { formatToolCall, basename, extractToolCalls, extractLastAssistantText, getSessionContext } from "./notify.js";
 
 // ── basename ──────────────────────────────────────────────────────────────────
 
@@ -140,6 +140,64 @@ describe("extractToolCalls", () => {
     ];
     writeFileSync(path, lines.join("\n"));
     assert.deepEqual(extractToolCalls(path), ["Write: b.ts"]);
+  });
+
+  // cleanup
+  test("cleanup", () => { rmSync(tmp, { recursive: true, force: true }); });
+});
+
+// ── extractLastAssistantText ──────────────────────────────────────────────────
+
+describe("extractLastAssistantText", () => {
+  const tmp = join(tmpdir(), `claude-hooks-last-text-${process.pid}`);
+  mkdirSync(tmp, { recursive: true });
+
+  test("returns empty for nonexistent file", () => {
+    assert.equal(extractLastAssistantText("/nonexistent.jsonl"), "");
+  });
+
+  test("extracts last assistant text block", () => {
+    const path = join(tmp, "text.jsonl");
+    const lines = [
+      JSON.stringify({ message: { role: "assistant", content: [
+        { type: "text", text: "First message" },
+      ]}}),
+      JSON.stringify({ message: { role: "user", content: "ok" } }),
+      JSON.stringify({ message: { role: "assistant", content: [
+        { type: "tool_use", name: "Bash", input: { command: "ls" } },
+        { type: "text", text: "Here is the result of the operation." },
+      ]}}),
+    ];
+    writeFileSync(path, lines.join("\n"));
+    assert.equal(extractLastAssistantText(path), "Here is the result of the operation.");
+  });
+
+  test("skips entries with no text block", () => {
+    const path = join(tmp, "no-text.jsonl");
+    const lines = [
+      JSON.stringify({ message: { role: "assistant", content: [
+        { type: "text", text: "Earlier message" },
+      ]}}),
+      JSON.stringify({ message: { role: "assistant", content: [
+        { type: "tool_use", name: "Bash", input: { command: "ls" } },
+      ]}}),
+    ];
+    writeFileSync(path, lines.join("\n"));
+    assert.equal(extractLastAssistantText(path), "Earlier message");
+  });
+
+  test("truncates at 500 chars", () => {
+    const path = join(tmp, "long-text.jsonl");
+    writeFileSync(path, JSON.stringify({ message: { role: "assistant", content: [
+      { type: "text", text: "a".repeat(600) },
+    ]}}));
+    assert.equal(extractLastAssistantText(path).length, 500);
+  });
+
+  test("returns empty when no assistant messages", () => {
+    const path = join(tmp, "user-only.jsonl");
+    writeFileSync(path, JSON.stringify({ message: { role: "user", content: "hello" } }));
+    assert.equal(extractLastAssistantText(path), "");
   });
 
   // cleanup
