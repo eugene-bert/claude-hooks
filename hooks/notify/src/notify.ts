@@ -1,11 +1,9 @@
-import { readFileSync, existsSync, appendFileSync, unlinkSync, writeFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { TelegramChannel } from "./channels/telegram.js";
 import { summarizeActions } from "./summarize.js";
 import type { Channel } from "./channels/index.js";
 
-const HOOKS_DIR = `${process.env.HOME}/.claude/hooks`;
-const SESSIONS_FILE = `${HOOKS_DIR}/.notify-sessions`;
-const ARM_FILE = `${HOOKS_DIR}/.notify-arm`;
+const SESSIONS_FILE = `${process.env.HOME}/.claude/hooks/.notify-sessions`;
 
 interface HookInput {
   session_id?: string;
@@ -117,15 +115,6 @@ function basename(p: string): string {
 }
 
 function isSessionEnabled(sessionId: string): boolean {
-  // Arm file present → register this session and activate
-  if (existsSync(ARM_FILE)) {
-    try {
-      appendFileSync(SESSIONS_FILE, `${sessionId}\n`);
-      unlinkSync(ARM_FILE);
-    } catch {}
-    return true;
-  }
-
   // No sessions file → notify all sessions (default behaviour)
   if (!existsSync(SESSIONS_FILE)) return true;
 
