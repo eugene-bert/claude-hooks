@@ -3,6 +3,7 @@ import { execSync } from "child_process";
 import { TelegramChannel } from "./channels/telegram.js";
 import { SlackChannel } from "./channels/slack.js";
 import { DiscordChannel } from "./channels/discord.js";
+import { NtfyChannel } from "./channels/ntfy.js";
 import { summarizeActions } from "./summarize.js";
 import type { Channel } from "./channels/index.js";
 
@@ -56,6 +57,9 @@ function buildChannels(): Channel[] {
 
   const discordUrl = process.env.DISCORD_WEBHOOK_URL;
   if (discordUrl) channels.push(new DiscordChannel(discordUrl));
+
+  const ntfyTopic = process.env.NTFY_TOPIC;
+  if (ntfyTopic) channels.push(new NtfyChannel(ntfyTopic, process.env.NTFY_SERVER));
 
   return channels;
 }

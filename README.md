@@ -57,6 +57,20 @@ Configure any combination — all active channels receive notifications simultan
    SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
    ```
 
+### ntfy
+
+The easiest option — no account, no bot, no token.
+
+1. Install the [ntfy app](https://ntfy.sh) on your phone
+2. Pick any topic name (e.g. `my-claude-123`)
+3. Add to `.env`:
+   ```env
+   NTFY_TOPIC=my-claude-123
+   # NTFY_SERVER=https://your-self-hosted-ntfy.com  # optional
+   ```
+
+> **Note:** ntfy.sh topics are public by default. Use a long random name or self-host for privacy.
+
 ### Discord
 
 1. In your Discord server: right-click a channel → **Edit Channel** → **Integrations** → **Webhooks** → **New Webhook**
