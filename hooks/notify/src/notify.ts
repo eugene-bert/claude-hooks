@@ -132,11 +132,10 @@ function getSessionContext(transcriptPath: string): SessionContext {
   const projectDir = parts[parts.length - 2] ?? "";
   const project = projectDir.split("-").pop() ?? "";
 
-  // Git branch from cwd (transcript path encodes the project dir)
+  // Git branch — run in process cwd (where Claude Code was launched)
   let branch = "";
   try {
-    const cwd = projectDir.replace(/^-/, "/").replace(/-/g, "/");
-    branch = execSync(`git -C "${cwd}" rev-parse --abbrev-ref HEAD 2>/dev/null`, {
+    branch = execSync("git rev-parse --abbrev-ref HEAD", {
       encoding: "utf8",
       stdio: ["pipe", "pipe", "ignore"],
     }).trim();
@@ -177,7 +176,7 @@ async function main(): Promise<void> {
   if (hookInput.transcript_path) {
     const ctx = getSessionContext(hookInput.transcript_path);
     const ctxParts = [ctx.project, ctx.branch, ctx.duration].filter(Boolean);
-    const ctxTag = ctxParts.length > 0 ? `[${ctxParts.join(" · ")}] ` : "";
+    const ctxTag = ctxParts.length > 0 ? `<code>${ctxParts.join(" · ")}</code> ` : "";
 
     const toolCalls = extractToolCalls(hookInput.transcript_path);
 
@@ -189,10 +188,11 @@ async function main(): Promise<void> {
         // no LLM creds — skip summary
       }
 
+      const escHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       if (aiSummary) {
         text = `⚡ ${ctxTag}${aiSummary}`;
       } else {
-        text = `⚡ ${ctxTag}\n${toolCalls.map(t => `• ${t}`).join("\n")}`;
+        text = `⚡ ${ctxTag}\n${toolCalls.map(t => `• ${escHtml(t)}`).join("\n")}`;
       }
     }
   }
