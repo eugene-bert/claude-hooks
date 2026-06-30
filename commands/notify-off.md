@@ -1,6 +1,7 @@
 Disable Telegram notifications for the current Claude Code session. Run this bash command exactly:
 
 ```bash
+rm -f ~/.claude/hooks/.notify-arm && \
 PROJECT_KEY=$(pwd | sed 's|[/.]|-|g') && \
 SESSION_ID=$(ls -t ~/.claude/projects/$PROJECT_KEY/*.jsonl 2>/dev/null | head -1 | xargs basename 2>/dev/null | sed 's/.jsonl//') && \
 if [ -n "$SESSION_ID" ]; then \
