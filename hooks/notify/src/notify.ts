@@ -1,4 +1,5 @@
 import { readFileSync } from "fs";
+import { execSync } from "child_process";
 import { TelegramChannel } from "./channels/telegram.js";
 import { SlackChannel } from "./channels/slack.js";
 import { DiscordChannel } from "./channels/discord.js";
@@ -119,6 +120,45 @@ function basename(p: string): string {
   return p.split("/").pop() ?? p;
 }
 
+interface SessionContext {
+  project: string;
+  branch: string;
+  duration: string;
+}
+
+function getSessionContext(transcriptPath: string): SessionContext {
+  // Project name from transcript path: ~/.claude/projects/-Users-...-myproject/session.jsonl
+  const parts = transcriptPath.split("/");
+  const projectDir = parts[parts.length - 2] ?? "";
+  const project = projectDir.split("-").pop() ?? "";
+
+  // Git branch from cwd (transcript path encodes the project dir)
+  let branch = "";
+  try {
+    const cwd = projectDir.replace(/^-/, "/").replace(/-/g, "/");
+    branch = execSync(`git -C "${cwd}" rev-parse --abbrev-ref HEAD 2>/dev/null`, {
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "ignore"],
+    }).trim();
+  } catch {}
+
+  // Duration: time since first entry in transcript
+  let duration = "";
+  try {
+    const lines = readFileSync(transcriptPath, "utf8").trim().split("\n");
+    const first = JSON.parse(lines[0] ?? "{}") as { timestamp?: number };
+    const last = JSON.parse(lines[lines.length - 1] ?? "{}") as { timestamp?: number };
+    if (first.timestamp && last.timestamp) {
+      const secs = Math.round((last.timestamp - first.timestamp) / 1000);
+      if (secs < 60) duration = `${secs}s`;
+      else if (secs < 3600) duration = `${Math.round(secs / 60)}m`;
+      else duration = `${Math.round(secs / 3600)}h`;
+    }
+  } catch {}
+
+  return { project, branch, duration };
+}
+
 async function main(): Promise<void> {
   loadDotEnv();
 
@@ -135,6 +175,10 @@ async function main(): Promise<void> {
   let text = "⚡ Claude Code needs your attention";
 
   if (hookInput.transcript_path) {
+    const ctx = getSessionContext(hookInput.transcript_path);
+    const ctxParts = [ctx.project, ctx.branch, ctx.duration].filter(Boolean);
+    const ctxTag = ctxParts.length > 0 ? `[${ctxParts.join(" · ")}] ` : "";
+
     const toolCalls = extractToolCalls(hookInput.transcript_path);
 
     if (toolCalls.length > 0) {
@@ -146,14 +190,16 @@ async function main(): Promise<void> {
       }
 
       if (aiSummary) {
-        text = `⚡ ${aiSummary}`;
+        text = `⚡ ${ctxTag}${aiSummary}`;
       } else {
-        text = `⚡\n${toolCalls.map(t => `• ${t}`).join("\n")}`;
+        text = `⚡ ${ctxTag}\n${toolCalls.map(t => `• ${t}`).join("\n")}`;
       }
     }
   }
 
-  await Promise.all(channels.map(ch => ch.send(text)));
+  await Promise.all(channels.map(ch => ch.send(text).catch(err => {
+    process.stderr.write(`claude-hooks: channel error: ${err.message}\n`);
+  })));
 }
 
 main().catch((err) => {
