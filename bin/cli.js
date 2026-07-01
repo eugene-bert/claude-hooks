@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from "fs";
 import { fileURLToPath } from "url";
-import { dirname, join, resolve } from "path";
+import { dirname, join } from "path";
 import { homedir } from "os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PACKAGE_ROOT = resolve(__dirname, "..");
+const PACKAGE_ROOT = join(__dirname, "..");
 const HOME = homedir();
 const HOOKS_DIR = join(HOME, ".claude", "hooks");
 const HOOKS_ENV = join(HOOKS_DIR, ".env");
@@ -18,24 +18,42 @@ const HOOKS = {
     description: "AI-summarized notifications to Telegram, Slack, Discord, and ntfy",
     install(tsxBin) {
       const script = join(PACKAGE_ROOT, "hooks", "notify", "src", "notify.ts");
-      const notifyCmd = `${tsxBin} ${script}`;
+      const notifyCmd = `"${tsxBin}" "${script}"`;
       let settings = {};
       if (existsSync(SETTINGS)) {
-        try { settings = JSON.parse(readFileSync(SETTINGS, "utf8")); } catch {}
+        try { settings = JSON.parse(readFileSync(SETTINGS, "utf8")); } catch (e) {
+          console.error(`Failed to parse ${SETTINGS}: ${e.message}\nFix the JSON syntax error and re-run.`);
+          process.exit(1);
+        }
       }
       settings.hooks ??= {};
-      settings.hooks.Notification = [{ matcher: "", hooks: [{ type: "command", command: notifyCmd }] }];
+      settings.hooks.Notification ??= [];
+      // Remove existing claude-hooks entry if present, then add fresh
+      settings.hooks.Notification = settings.hooks.Notification.filter(
+        e => !e.hooks?.some(h => h.command?.includes("claude-hooks"))
+      );
+      settings.hooks.Notification.push({ matcher: "", hooks: [{ type: "command", command: notifyCmd }] });
       writeFileSync(SETTINGS, JSON.stringify(settings, null, 2) + "\n");
       console.log(`  Wired Notification hook into ${SETTINGS}`);
     },
     uninstall() {
       if (!existsSync(SETTINGS)) return;
       let settings = {};
-      try { settings = JSON.parse(readFileSync(SETTINGS, "utf8")); } catch {}
-      if (settings.hooks?.Notification) {
-        delete settings.hooks.Notification;
+      try { settings = JSON.parse(readFileSync(SETTINGS, "utf8")); } catch (e) {
+        console.error(`Failed to parse ${SETTINGS}: ${e.message}`);
+        process.exit(1);
+      }
+      const before = settings.hooks?.Notification?.length ?? 0;
+      settings.hooks.Notification = (settings.hooks?.Notification ?? []).filter(
+        e => !e.hooks?.some(h => h.command?.includes("claude-hooks"))
+      );
+      if (settings.hooks.Notification.length === 0) delete settings.hooks.Notification;
+      const removed = before - (settings.hooks?.Notification?.length ?? 0);
+      if (removed > 0) {
         writeFileSync(SETTINGS, JSON.stringify(settings, null, 2) + "\n");
         console.log("  Removed Notification hook.");
+      } else {
+        console.log("  Notification hook was not installed.");
       }
     },
   },
@@ -70,25 +88,33 @@ if (cmd === "list") {
 
 if (cmd === "install") {
   if (!hook) { console.error("Usage: claude-hooks install <hook>\nRun 'claude-hooks list' to see available hooks."); process.exit(1); }
-  if (!HOOKS[hook]) { console.error(`Unknown hook: ${hook}\nRun 'claude-hooks list' to see available hooks.`); process.exit(1); }
+  if (!Object.hasOwn(HOOKS, hook)) { console.error(`Unknown hook: ${hook}\nRun 'claude-hooks list' to see available hooks.`); process.exit(1); }
 
   console.log(`Installing ${hook} hook...`);
   mkdirSync(HOOKS_DIR, { recursive: true });
   if (!existsSync(HOOKS_ENV)) {
-    copyFileSync(join(PACKAGE_ROOT, ".env.example"), HOOKS_ENV);
-    console.log(`  Created ${HOOKS_ENV}`);
-    console.log("  Fill in your credentials.");
+    try {
+      copyFileSync(join(PACKAGE_ROOT, ".env.example"), HOOKS_ENV);
+      console.log(`  Created ${HOOKS_ENV}`);
+      console.log("  Fill in your credentials.");
+    } catch (e) {
+      console.error(`  Warning: could not create ${HOOKS_ENV}: ${e.message}`);
+    }
   }
 
   const tsxBin = join(PACKAGE_ROOT, "node_modules", ".bin", "tsx");
+  if (!existsSync(tsxBin)) {
+    console.error(`tsx not found at ${tsxBin}\nRun 'npm install' inside the package directory first.`);
+    process.exit(1);
+  }
   HOOKS[hook].install(tsxBin);
   console.log(`\nDone. Restart Claude Code.\n`);
   process.exit(0);
 }
 
 if (cmd === "uninstall") {
-  if (!hook) { console.error("Usage: claude-hooks uninstall <hook>"); process.exit(1); }
-  if (!HOOKS[hook]) { console.error(`Unknown hook: ${hook}`); process.exit(1); }
+  if (!hook) { console.error("Usage: claude-hooks uninstall <hook>\nRun 'claude-hooks list' to see available hooks."); process.exit(1); }
+  if (!Object.hasOwn(HOOKS, hook)) { console.error(`Unknown hook: ${hook}\nRun 'claude-hooks list' to see available hooks.`); process.exit(1); }
   HOOKS[hook].uninstall();
   process.exit(0);
 }
