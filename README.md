@@ -95,6 +95,20 @@ The easiest option — no account, no bot, no token.
 
 > **Note:** ntfy.sh topics are public by default. Use a long random name or self-host for privacy.
 
+### Slack (Bot Token)
+
+Use this if you prefer a bot over a webhook — lets you send to any channel including DMs.
+
+1. Go to [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch**
+2. **OAuth & Permissions** → **Scopes** → add `chat:write`
+3. **Install to Workspace** → copy the **Bot User OAuth Token** (`xoxb-...`)
+4. Invite the bot to your channel: `/invite @your-app-name`
+5. Add to `.env`:
+   ```env
+   SLACK_BOT_TOKEN=xoxb-...
+   SLACK_BOT_CHANNEL=#your-channel
+   ```
+
 ### Discord
 
 1. In your Discord server: right-click a channel → **Edit Channel** → **Integrations** → **Webhooks** → **New Webhook**
