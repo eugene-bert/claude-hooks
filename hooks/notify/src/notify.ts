@@ -13,6 +13,10 @@ interface HookInput {
   transcript_path?: string;
   message?: string;
   title?: string;
+  notification_type?: string;
+  cwd?: string;
+  prompt_id?: string;
+  hook_event_name?: string;
 }
 
 interface TranscriptEntry {
@@ -200,11 +204,6 @@ export async function main(): Promise<void> {
   let hookInput: HookInput = {};
   try { hookInput = JSON.parse(raw); } catch {}
 
-  // Debug: log raw input to see all available fields
-  try {
-    const { appendFileSync } = await import("fs");
-    appendFileSync(`${process.env.HOME}/.claude/hooks/notify-debug.log`, `${new Date().toISOString()} ${raw}\n`);
-  } catch {}
 
 
   const notification = { summary: "Claude Code needs your attention", context: "" };
