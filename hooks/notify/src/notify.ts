@@ -204,8 +204,6 @@ export async function main(): Promise<void> {
   let hookInput: HookInput = {};
   try { hookInput = JSON.parse(raw); } catch {}
 
-
-
   const notification: { summary: string; context: string; emoji: string; type: string } = {
     summary: "Claude Code needs your attention",
     context: "",
