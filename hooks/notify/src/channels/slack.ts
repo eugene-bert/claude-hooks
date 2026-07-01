@@ -9,7 +9,8 @@ export class SlackChannel implements Channel {
 
   async send(notification: Notification): Promise<void> {
     const ctx = notification.context ? `\`${notification.context}\` ` : "";
-    const text = `${notification.emoji ?? "⚡"} ${ctx}${notification.summary}`;
+    const tag = notification.type ? `[${notification.type}] ` : "";
+    const text = `${notification.emoji ?? "⚡"} ${tag}${ctx}${notification.summary}`;
 
     const res = await fetch(this.webhookUrl, {
       method: "POST",

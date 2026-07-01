@@ -146,22 +146,22 @@ Two placeholders are available:
 - `{{TOOL_CALLS}}` — last 10 tool calls Claude made
 - `{{LAST_MESSAGE}}` — last text message Claude wrote (used for detecting waiting/blocked situations)
 
-Example prompt in Russian:
+Example — French summary with situation detection:
 
 ```
-Ты суммаризируешь что сделал AI-ассистент в терминальной сессии.
+You are summarizing what a coding AI assistant just did.
 
-Последние действия:
+Last tool calls:
 {{TOOL_CALLS}}
 
 {{LAST_MESSAGE}}
 
-Определи ситуацию и напиши 1-2 предложения на русском языке:
-- Если задача выполнена: опиши что сделано.
-- Если ассистент ждёт ответа: начни с "Ожидает:" и укажи что нужно.
-- Если ошибка: начни с "Ошибка:" и опиши проблему.
+Determine the situation and write 1-2 sentences in French:
+- If the task is done: summarize what was accomplished.
+- If the assistant is waiting for input: start with "Waiting:" and state what is needed.
+- If there is an error: start with "Blocked:" and describe the problem.
 
-Только plain text, никаких тегов.
+Plain text only, no tags or markdown.
 ```
 
 Or a single-line prompt via env (only `{{TOOL_CALLS}}` supported inline):

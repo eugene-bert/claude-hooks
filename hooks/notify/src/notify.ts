@@ -206,10 +206,11 @@ export async function main(): Promise<void> {
 
 
 
-  const notification: { summary: string; context: string; emoji: string } = {
+  const notification: { summary: string; context: string; emoji: string; type: string } = {
     summary: "Claude Code needs your attention",
     context: "",
     emoji: "⚡",
+    type: "done",
   };
 
   if (hookInput.transcript_path) {
@@ -229,8 +230,13 @@ export async function main(): Promise<void> {
       }
 
       notification.summary = aiSummary || toolCalls.map(t => `• ${t}`).join("\n");
-      if (aiSummary.startsWith("Waiting:") || aiSummary.startsWith("Ожидает:")) notification.emoji = "⏳";
-      else if (aiSummary.startsWith("Blocked:") || aiSummary.startsWith("Ошибка:")) notification.emoji = "🚫";
+      if (aiSummary.startsWith("Waiting:")) {
+        notification.emoji = "⏳";
+        notification.type = "waiting";
+      } else if (aiSummary.startsWith("Blocked:")) {
+        notification.emoji = "🚫";
+        notification.type = "blocked";
+      }
     }
   }
 

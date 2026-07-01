@@ -1,7 +1,8 @@
 export interface Notification {
-  summary: string;   // plain text
-  context?: string;  // "drone · main · 4m"
-  emoji?: string;    // ⚡ | ⏳ | 🚫
+  summary: string;      // plain text
+  context?: string;     // "drone · main · 4m"
+  emoji?: string;       // ⚡ | ⏳ | 🚫
+  type?: string;        // "done" | "waiting" | "blocked"
 }
 
 export interface Channel {
