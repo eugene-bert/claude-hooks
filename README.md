@@ -140,15 +140,30 @@ Override the summary prompt via a file:
 CLAUDE_NOTIFY_PROMPT_FILE=/path/to/prompt.txt
 ```
 
-Prompt format — use `{{TOOL_CALLS}}` as placeholder:
+Two placeholders are available:
+
+- `{{TOOL_CALLS}}` — last 10 tool calls Claude made
+- `{{LAST_MESSAGE}}` — last text message Claude wrote (used for detecting waiting/blocked situations)
+
+Example prompt in Russian:
 
 ```
-Summarize what the AI assistant did in one sentence in French.
+Ты суммаризируешь что сделал AI-ассистент в терминальной сессии.
 
+Последние действия:
 {{TOOL_CALLS}}
+
+{{LAST_MESSAGE}}
+
+Определи ситуацию и напиши 1-2 предложения на русском языке:
+- Если задача выполнена: опиши что сделано.
+- Если ассистент ждёт ответа: начни с "Ожидает:" и укажи что нужно.
+- Если ошибка: начни с "Ошибка:" и опиши проблему.
+
+Только plain text, никаких тегов.
 ```
 
-Or a single-line prompt via env:
+Or a single-line prompt via env (only `{{TOOL_CALLS}}` supported inline):
 ```env
 CLAUDE_NOTIFY_PROMPT=Summarize in one sentence: {{TOOL_CALLS}}
 ```
