@@ -13,7 +13,7 @@ export class TelegramChannel implements Channel {
 
   async send(notification: Notification): Promise<void> {
     const ctx = notification.context ? `<code>${esc(notification.context)}</code> ` : "";
-    const text = `⚡ ${ctx}${esc(notification.summary)}`;
+    const text = `${notification.emoji ?? "⚡"} ${ctx}${esc(notification.summary)}`;
 
     const url = `https://api.telegram.org/bot${this.token}/sendMessage`;
     const res = await fetch(url, {

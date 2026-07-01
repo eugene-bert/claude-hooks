@@ -9,7 +9,7 @@ export class DiscordChannel implements Channel {
 
   async send(notification: Notification): Promise<void> {
     const ctx = notification.context ? `\`${notification.context}\` ` : "";
-    const content = `⚡ ${ctx}${notification.summary}`;
+    const content = `${notification.emoji ?? "⚡"} ${ctx}${notification.summary}`;
 
     const res = await fetch(this.webhookUrl, {
       method: "POST",

@@ -15,7 +15,7 @@ export class NtfyChannel implements Channel {
       method: "POST",
       headers: {
         "Content-Type": "text/plain",
-        "Title": "⚡ Claude Code",
+        "Title": `${notification.emoji ?? "⚡"} Claude Code`,
       },
       body,
     });

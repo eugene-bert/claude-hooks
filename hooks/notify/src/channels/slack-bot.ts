@@ -11,7 +11,7 @@ export class SlackBotChannel implements Channel {
 
   async send(notification: Notification): Promise<void> {
     const ctx = notification.context ? `\`${notification.context}\` ` : "";
-    const text = `⚡ ${ctx}${notification.summary}`;
+    const text = `${notification.emoji ?? "⚡"} ${ctx}${notification.summary}`;
 
     const res = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST",
