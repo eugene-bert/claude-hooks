@@ -14,7 +14,8 @@ A collection of hooks for [Claude Code](https://claude.ai/code) that extend its 
 
 ---
 
-![Notification example](assets/notification-example.png)
+![Slack notification example](assets/slack-example.png)
+![Telegram notification example](assets/telegram-example.png)
 
 ## What it does
 
