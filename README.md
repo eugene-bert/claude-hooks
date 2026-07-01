@@ -20,13 +20,21 @@ A collection of hooks for [Claude Code](https://claude.ai/code) that extend its 
 
 When Claude Code completes work and waits for your input, you get a notification with an AI-generated summary of what was done — not just a raw list of tool calls.
 
-**Example message:**
-> ⚡ Configured nginx reverse proxy for the API service, updated docker-compose.yml, and committed changes to main branch.
+Notifications include:
+- **Project + git branch + task duration** — shown as a code tag before the summary
+- **Situation detection** — the AI determines whether Claude finished, is waiting for input, or hit an error
+
+**Examples:**
+> ⚡ `drone · main · 4m` Configured nginx reverse proxy for the API service, updated docker-compose.yml, and committed changes to main branch.
+
+> ⚡ `drone · main · 2m` Waiting: need to know which port to use for the API service.
+
+> ⚡ `drone · main · 1m` Blocked: npm install failed due to missing permissions.
 
 ## Installation
 
 ```bash
-npx @eugene-bert/claude-hooks install
+npx @eugene-bert/claude-hooks install notify
 ```
 
 Then edit `~/.claude/hooks/.env` and fill in your channel credentials.
@@ -36,6 +44,14 @@ Or clone manually:
 git clone https://github.com/eugene-bert/claude-hooks
 cd claude-hooks
 bash install.sh
+```
+
+### CLI reference
+
+```bash
+claude-hooks list                  # list available hooks
+claude-hooks install <hook>        # install a hook
+claude-hooks uninstall <hook>      # remove a hook
 ```
 
 ## Channels
@@ -164,9 +180,10 @@ CLAUDE_NOTIFY_PROMPT=
 The `Notification` hook in Claude Code fires when Claude finishes a task and wants your attention. This hook:
 
 1. Reads the session transcript
-2. Extracts the last 10 tool calls
-3. Sends them to the configured LLM for summarization
-4. Posts the summary to all configured channels
+2. Extracts the last 10 tool calls + last assistant message
+3. Detects context: project name, git branch, task duration
+4. Sends to the configured LLM — which determines if Claude finished, is waiting, or is blocked
+5. Posts the formatted summary to all configured channels simultaneously
 
 ## License
 
