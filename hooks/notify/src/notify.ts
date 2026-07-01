@@ -200,6 +200,7 @@ export async function main(): Promise<void> {
   let hookInput: HookInput = {};
   try { hookInput = JSON.parse(raw); } catch {}
 
+
   const notification = { summary: "Claude Code needs your attention", context: "" };
 
   if (hookInput.transcript_path) {
