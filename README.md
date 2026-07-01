@@ -82,6 +82,19 @@ Configure any combination — all active channels receive notifications simultan
    SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
    ```
 
+### macOS
+
+Native macOS notifications — no setup needed. Optionally auto-focuses your terminal window.
+
+Add to `.env`:
+```env
+MACOS_NOTIFICATIONS=true
+MACOS_FOCUS_TERMINAL=true   # optional: bring terminal to front when notification fires
+MACOS_TERMINAL_APP=iTerm2   # optional: terminal app name (auto-detected if omitted)
+```
+
+Supported terminals for auto-focus: Ghostty, iTerm2, Terminal, Warp, Alacritty, kitty, Hyper.
+
 ### ntfy
 
 The easiest option — no account, no bot, no token.
