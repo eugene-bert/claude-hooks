@@ -72,7 +72,7 @@ function buildChannels(): Channel[] {
   if (ntfyTopic) channels.push(new NtfyChannel(ntfyTopic, process.env.NTFY_SERVER));
 
   if (process.env.MACOS_NOTIFICATIONS === "true" && process.platform === "darwin") {
-    channels.push(new MacOSChannel());
+    channels.push(new MacOSChannel(process.env.MACOS_FOCUS_TERMINAL === "true"));
   }
 
   return channels;
