@@ -176,13 +176,17 @@ CLAUDE_NOTIFY_PROMPT=Summarize in one sentence: {{TOOL_CALLS}}
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 
-# Slack
+# Slack (Incoming Webhook)
 SLACK_WEBHOOK_URL=
 
-# Discord
+# Slack (Bot Token — alternative to webhook, supports DMs)
+SLACK_BOT_TOKEN=
+SLACK_BOT_CHANNEL=
+
+# Discord (Webhook)
 DISCORD_WEBHOOK_URL=
 
-# ntfy
+# ntfy (no account needed)
 NTFY_TOPIC=
 NTFY_SERVER=https://ntfy.sh  # optional, change for self-hosted
 
