@@ -203,6 +203,11 @@ DISCORD_WEBHOOK_URL=
 NTFY_TOPIC=
 NTFY_SERVER=https://ntfy.sh  # optional, change for self-hosted
 
+# macOS native notifications
+MACOS_NOTIFICATIONS=true
+MACOS_FOCUS_TERMINAL=true    # optional: bring terminal to front
+MACOS_TERMINAL_APP=iTerm2    # optional: override auto-detected terminal
+
 # LLM provider (pick one)
 OLLAMA_HOST=http://localhost:11434
 OLLAMA_MODEL=llama3.2

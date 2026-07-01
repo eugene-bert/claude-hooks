@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7] - 2026-07-01
+
+### Added
+- macOS native notifications channel (`MACOS_NOTIFICATIONS=true`)
+- Auto-focus terminal on notification (`MACOS_FOCUS_TERMINAL=true`)
+- Terminal auto-detection from process tree (Ghostty, iTerm2, Terminal, Warp, etc.)
+- `MACOS_TERMINAL_APP` env override for manual terminal selection
+
 ## [0.1.6] - 2026-07-01
 
 ### Added
