@@ -1,6 +1,7 @@
 node_modules/
 hooks/notify/node_modules/
 hooks/notify/src/*.test.ts
+assets/
 .env
 .env.example.bak
 *.log
