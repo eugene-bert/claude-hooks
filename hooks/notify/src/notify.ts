@@ -5,6 +5,7 @@ import { SlackChannel } from "./channels/slack.js";
 import { SlackBotChannel } from "./channels/slack-bot.js";
 import { DiscordChannel } from "./channels/discord.js";
 import { NtfyChannel } from "./channels/ntfy.js";
+import { MacOSChannel } from "./channels/macos.js";
 import { summarizeActions } from "./summarize.js";
 import type { Channel } from "./channels/index.js";
 
@@ -69,6 +70,10 @@ function buildChannels(): Channel[] {
 
   const ntfyTopic = process.env.NTFY_TOPIC;
   if (ntfyTopic) channels.push(new NtfyChannel(ntfyTopic, process.env.NTFY_SERVER));
+
+  if (process.env.MACOS_NOTIFICATIONS === "true" && process.platform === "darwin") {
+    channels.push(new MacOSChannel());
+  }
 
   return channels;
 }
