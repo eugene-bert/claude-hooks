@@ -27,8 +27,7 @@ const HOOKS = {
         }
       }
       settings.hooks ??= {};
-      settings.hooks.Notification ??= [];
-      // Remove existing claude-hooks entry if present, then add fresh
+      if (!Array.isArray(settings.hooks.Notification)) settings.hooks.Notification = [];
       settings.hooks.Notification = settings.hooks.Notification.filter(
         e => !e.hooks?.some(h => h.command?.includes("claude-hooks"))
       );
@@ -43,13 +42,18 @@ const HOOKS = {
         console.error(`Failed to parse ${SETTINGS}: ${e.message}`);
         process.exit(1);
       }
-      const before = settings.hooks?.Notification?.length ?? 0;
-      settings.hooks.Notification = (settings.hooks?.Notification ?? []).filter(
+      settings.hooks ??= {};
+      const prior = Array.isArray(settings.hooks.Notification) ? settings.hooks.Notification : [];
+      const filtered = prior.filter(
         e => !e.hooks?.some(h => h.command?.includes("claude-hooks"))
       );
-      if (settings.hooks.Notification.length === 0) delete settings.hooks.Notification;
-      const removed = before - (settings.hooks?.Notification?.length ?? 0);
-      if (removed > 0) {
+      if (filtered.length < prior.length) {
+        if (filtered.length === 0) {
+          delete settings.hooks.Notification;
+          if (Object.keys(settings.hooks).length === 0) delete settings.hooks;
+        } else {
+          settings.hooks.Notification = filtered;
+        }
         writeFileSync(SETTINGS, JSON.stringify(settings, null, 2) + "\n");
         console.log("  Removed Notification hook.");
       } else {

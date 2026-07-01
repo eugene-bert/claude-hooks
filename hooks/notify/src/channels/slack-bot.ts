@@ -23,11 +23,12 @@ export class SlackBotChannel implements Channel {
     });
 
     if (!res.ok) {
-      throw new Error(`Slack API error ${res.status}`);
+      const body = await res.text();
+      throw new Error(`Slack API error ${res.status}: ${body}`);
     }
     const data = await res.json() as { ok: boolean; error?: string };
     if (!data.ok) {
-      throw new Error(`Slack API error: ${data.error}`);
+      throw new Error(`Slack API error: ${data.error ?? "unknown"}`);
     }
   }
 }

@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import { execSync } from "child_process";
 import { TelegramChannel } from "./channels/telegram.js";
 import { SlackChannel } from "./channels/slack.js";
+import { SlackBotChannel } from "./channels/slack-bot.js";
 import { DiscordChannel } from "./channels/discord.js";
 import { NtfyChannel } from "./channels/ntfy.js";
 import { summarizeActions } from "./summarize.js";
@@ -54,6 +55,10 @@ function buildChannels(): Channel[] {
 
   const webhookUrl = process.env.SLACK_WEBHOOK_URL;
   if (webhookUrl) channels.push(new SlackChannel(webhookUrl));
+
+  const slackBotToken = process.env.SLACK_BOT_TOKEN;
+  const slackBotChannel = process.env.SLACK_BOT_CHANNEL;
+  if (slackBotToken && slackBotChannel) channels.push(new SlackBotChannel(slackBotToken, slackBotChannel));
 
   const discordUrl = process.env.DISCORD_WEBHOOK_URL;
   if (discordUrl) channels.push(new DiscordChannel(discordUrl));
