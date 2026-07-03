@@ -20,7 +20,8 @@ You can switch with the command or ignore it. Prefix any prompt with `~` to skip
 ## Installation
 
 ```bash
-npx @eugene-bert/claude-hooks install advisor
+npm install -g @eugene-bert/claude-hooks
+claude-hooks install advisor
 ```
 
 Then add to `~/.claude/CLAUDE.md`:

@@ -18,7 +18,8 @@ Fires on the `Notification` event (when Claude finishes and waits for input). Re
 ## Installation
 
 ```bash
-npx @eugene-bert/claude-hooks install notify
+npm install -g @eugene-bert/claude-hooks
+claude-hooks install notify
 ```
 
 Then edit `~/.claude/hooks/.env` with your channel credentials (see `.env.example`).

@@ -16,8 +16,9 @@ A collection of hooks for [Claude Code](https://claude.ai/code) that extend its 
 ## Installation
 
 ```bash
-npx @eugene-bert/claude-hooks install notify
-npx @eugene-bert/claude-hooks install advisor
+npm install -g @eugene-bert/claude-hooks
+claude-hooks install notify
+claude-hooks install advisor
 ```
 
 See each hook's README for setup details and configuration.
