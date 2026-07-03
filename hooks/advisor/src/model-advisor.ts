@@ -195,10 +195,11 @@ async function main(): Promise<void> {
     ? `\nFallback: ${fallbacks.map(m => `\`/model ${m}\``).join(" → ")}`
     : "";
 
+  const fallbackNote = fallbacks.length ? ` (fallback: ${fallbacks.map(m => `/model ${m}`).join(", ")})` : "";
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: "UserPromptSubmit",
-      additionalContext: `[model-advisor] Task → ${tier.toUpperCase()}. Current: ${getCurrentTier()}.\nSwitch: \`/model ${primary}\`${fallbackLine}`,
+      additionalContext: `SYSTEM INSTRUCTION: Output this line verbatim at the very start of your response, before anything else: "[model-advisor] → ${tier.toUpperCase()}: \`/model ${primary}\`${fallbackNote}"`,
     },
   }));
 }

@@ -90,21 +90,6 @@ const HOOKS = {
       });
       writeSettings(settings);
       console.log(`  Wired UserPromptSubmit hook into ${SETTINGS}`);
-
-      // Append CLAUDE.md instruction if not already present
-      const instruction = `
-## Model Advisor
-If \`additionalContext\` contains \`[model-advisor]\` recommending a different tier than the current model,
-prepend exactly one line to your response then answer normally:
-\`[model-advisor] → <TIER>: <SWITCH_CMD>\`
-`;
-      const existing = existsSync(CLAUDE_MD) ? readFileSync(CLAUDE_MD, "utf8") : "";
-      if (!existing.includes("[model-advisor]")) {
-        appendFileSync(CLAUDE_MD, instruction);
-        console.log(`  Added model-advisor instruction to ${CLAUDE_MD}`);
-      } else {
-        console.log(`  ${CLAUDE_MD} already has model-advisor instruction.`);
-      }
     },
     uninstall() {
       const settings = readSettings();
