@@ -11,6 +11,7 @@ A collection of hooks for [Claude Code](https://claude.ai/code) that extend its 
 | Hook | Description |
 |------|-------------|
 | [notify](hooks/notify/) | AI-summarized notifications to Telegram, Slack, Discord, and ntfy |
+| [model-advisor](hooks/notify/src/model-advisor.ts) | Recommends switching Claude model tier based on task complexity |
 
 ---
 
@@ -225,7 +226,73 @@ ANTHROPIC_API_KEY=
 # Custom summary prompt
 CLAUDE_NOTIFY_PROMPT_FILE=
 CLAUDE_NOTIFY_PROMPT=
+
+# Model advisor
+MODEL_ADVISOR_HAIKU_MODELS=haiku
+MODEL_ADVISOR_SONNET_MODELS=sonnet
+MODEL_ADVISOR_OPUS_MODELS=claude-opus-4-6,opus
+MODEL_ADVISOR_MIN_WORDS=0
 ```
+
+## Model Advisor
+
+Classifies every prompt via a cheap LLM (Haiku by default) and recommends switching Claude model tier when the current model is a poor fit for the task:
+
+- **haiku** — trivial: renames, quick questions, git commands, simple lookups
+- **sonnet** — standard: feature implementation, debugging, code writing, planning
+- **opus** — complex: architecture design, security audit, distributed systems, major refactors
+
+When a mismatch is detected, Claude prepends a one-line recommendation to its response:
+```
+[model-advisor] → OPUS: /model opus
+```
+
+You can ignore it and continue, or switch with the suggested command then press `↑` to re-send.
+
+**Bypass:** prefix any prompt with `~` to skip classification for that message.
+
+### Setup
+
+Add to `~/.claude/settings.json` under `UserPromptSubmit`:
+
+```json
+{
+  "type": "command",
+  "command": "npx --yes tsx /path/to/claude-hooks/hooks/notify/src/model-advisor.ts",
+  "timeout": 8,
+  "statusMessage": "Analyzing task complexity..."
+}
+```
+
+Add to `~/.claude/CLAUDE.md`:
+
+```markdown
+## Model Advisor
+If `additionalContext` contains `[model-advisor]` recommending a different tier than the current model,
+prepend exactly one line to your response then answer normally:
+`[model-advisor] → <TIER>: <SWITCH_CMD>`
+```
+
+### Configuration
+
+```env
+# Classifier model (defaults to Haiku — cheapest, fastest)
+MODEL_ADVISOR_VERTEX_MODEL=claude-haiku-4-5@20251001
+MODEL_ADVISOR_ANTHROPIC_MODEL=claude-haiku-4-5-20251001
+MODEL_ADVISOR_BEDROCK_MODEL=anthropic.claude-haiku-4-5-20251001-v1:0
+
+# Available models per tier — comma-separated, first = primary, rest = fallbacks
+MODEL_ADVISOR_HAIKU_MODELS=haiku
+MODEL_ADVISOR_SONNET_MODELS=sonnet
+MODEL_ADVISOR_OPUS_MODELS=claude-opus-4-6,opus
+
+# Minimum words to classify (0 = classify everything, default)
+MODEL_ADVISOR_MIN_WORDS=0
+```
+
+Same LLM providers as the notify hook are supported (Vertex AI, Anthropic API, Bedrock, Ollama, OpenRouter).
+
+---
 
 ## How it works
 
