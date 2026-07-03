@@ -209,7 +209,7 @@ async function main(): Promise<void> {
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: "UserPromptSubmit",
-      additionalContext: `SYSTEM INSTRUCTION: Output this line verbatim at the very start of your response, before anything else: "[model-advisor] → ${tier.toUpperCase()}: \`/model ${primary}\`${fallbackNote}"`,
+      additionalContext: `SYSTEM INSTRUCTION: Output this line verbatim at the very start of your response, before anything else: "[model-advisor] ${getCurrentTier().toUpperCase()} → ${tier.toUpperCase()}: \`/model ${primary}\`${fallbackNote}"`,
     },
   }));
 }
