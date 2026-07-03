@@ -1,5 +1,5 @@
 node_modules/
-hooks/notify/node_modules/
+hooks/*/node_modules/
 hooks/notify/src/*.test.ts
 assets/
 .env
