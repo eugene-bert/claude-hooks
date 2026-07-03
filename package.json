@@ -1,6 +1,6 @@
 {
   "name": "@eugene-bert/claude-hooks",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Claude Code hooks — AI-summarized notifications to Telegram, Slack, and Discord",
   "type": "module",
   "bin": {
