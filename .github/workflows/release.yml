@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Clear auth token so OIDC can handle auth
+        run: npm config delete //registry.npmjs.org/:_authToken || true
+
       - name: Publish to npm
         run: npm publish --access public
 
