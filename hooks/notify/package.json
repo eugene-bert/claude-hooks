@@ -1,17 +1,10 @@
 {
-  "name": "claude-hooks",
+  "name": "claude-hooks-notify",
   "version": "0.1.7",
   "private": true,
   "type": "module",
   "scripts": {
     "notify": "tsx src/notify.ts",
     "test": "node --import tsx/esm --test src/notify.test.ts"
-  },
-  "dependencies": {
-    "@anthropic-ai/bedrock-sdk": "^0.31.0",
-    "@anthropic-ai/sdk": "^0.107.0",
-    "@anthropic-ai/vertex-sdk": "^0.18.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.7.0"
   }
 }

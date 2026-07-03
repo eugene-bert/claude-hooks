@@ -6,6 +6,9 @@
   "bin": {
     "claude-hooks": "bin/cli.js"
   },
+  "workspaces": [
+    "hooks/*"
+  ],
   "scripts": {
     "version": "node -e \"const fs=require('fs');const p=JSON.parse(fs.readFileSync('hooks/notify/package.json','utf8'));p.version=process.env.npm_new_version;fs.writeFileSync('hooks/notify/package.json',JSON.stringify(p,null,2)+'\\n');\" && git add hooks/notify/package.json"
   },
