@@ -186,7 +186,17 @@ async function main(): Promise<void> {
     }
   }
 
-  if (tier === getCurrentTier()) process.exit(0);
+  if (tier === getCurrentTier()) {
+    if (process.env.MODEL_ADVISOR_VERBOSE === "true") {
+      process.stdout.write(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: "UserPromptSubmit",
+          additionalContext: `SYSTEM INSTRUCTION: Output this line verbatim at the very start of your response, before anything else: "[model-advisor] ✓ ${tier.toUpperCase()} ok"`,
+        },
+      }));
+    }
+    process.exit(0);
+  }
 
   const models = getTierModels(tier);
   const primary = models[0];
