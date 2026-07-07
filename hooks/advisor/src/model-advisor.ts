@@ -68,7 +68,7 @@ const CLASSIFY_PROMPT = (prompt: string) =>
   `Classify the complexity of this software engineering task. The task may be in any language. Return ONLY raw JSON with no markdown, no explanation, no code blocks.
 
 {"tier":"haiku"} — trivial: rename a variable, fix a typo, quick factual question, simple git command, minor formatting, short lookup
-{"tier":"sonnet"} — standard: implement a feature, debug an issue, write or refactor code, explain a concept, create a component, plan a small task
+{"tier":"sonnet"} — standard: implement a feature, debug an issue, write or refactor code, explain a concept, create a component, plan a small task. Also: any slash command starting with "/" (e.g. /init, /review, /security-review, /run) — these invoke tools that analyze codebases and always need at least sonnet
 {"tier":"opus"} — complex: system/architecture design, security audit, large-scale refactor across many files, deep analysis, distributed systems, performance optimization at scale, design patterns for complex domains
 
 Examples of opus tasks (in any language):
