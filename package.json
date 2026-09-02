@@ -15,7 +15,7 @@
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.31.0",
     "@anthropic-ai/sdk": "^0.107.0",
-    "@anthropic-ai/vertex-sdk": "^0.18.0",
+    "@anthropic-ai/vertex-sdk": "^0.19.6",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   },
