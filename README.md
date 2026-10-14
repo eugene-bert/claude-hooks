@@ -12,6 +12,7 @@ A collection of hooks for [Claude Code](https://claude.ai/code) that extend its 
 |------|-------|-------------|
 | [notify](hooks/notify/) | `Notification` | AI-summarized notifications to Telegram, Slack, Discord, ntfy, and macOS |
 | [advisor](hooks/advisor/) | `UserPromptSubmit` | Recommends switching Claude model tier based on task complexity |
+| [session-color](hooks/session-color/) | `SessionStart` | Auto-tints terminal tabs per project directory (iTerm2 + basic title) |
 
 ## Installation
 
@@ -19,6 +20,7 @@ A collection of hooks for [Claude Code](https://claude.ai/code) that extend its 
 npm install -g @eugene-bert/claude-hooks
 claude-hooks install notify
 claude-hooks install advisor
+claude-hooks install session-color
 ```
 
 See each hook's README for setup details and configuration.

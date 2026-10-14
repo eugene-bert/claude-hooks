@@ -22,6 +22,8 @@ Two independent hooks, each a self-contained directory under `hooks/`:
 
 **`hooks/advisor/`** — fires on `UserPromptSubmit`. Classifies the incoming prompt into haiku/sonnet/opus tier using a small LLM, compares to current model (read from `~/.claude/settings.json`), and emits a `hookSpecificOutput` system instruction telling Claude to display a switch recommendation. Results cached for 7 days at `~/.claude/model-advisor-cache.json` by SHA-256 of prompt.
 
+**`hooks/session-color/`** — fires on `SessionStart`. Hashes `cwd` to pick a deterministic color from a 10-color palette. On iTerm2: sets tab color via proprietary escape sequences + optional badge. On any terminal: sets tab title to `claude: <project>`. No external deps, no LLM calls. Configurable via env vars (`SESSION_COLOR_ENABLED`, `SESSION_COLOR_TERMINAL`, `SESSION_COLOR_BADGE`, `SESSION_COLOR_TITLE`).
+
 **`bin/cli.js`** — the `claude-hooks` installer. Reads/writes `~/.claude/settings.json` to wire hooks, creates `~/.claude/hooks/.env` from `.env.example`. No build step — runs directly as ESM.
 
 Both hooks share the same pattern: `loadDotEnv()` reads `~/.claude/hooks/.env` before checking `process.env`, so env vars in that file take effect without shell export.

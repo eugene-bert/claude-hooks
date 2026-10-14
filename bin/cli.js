@@ -74,6 +74,43 @@ const HOOKS = {
     },
   },
 
+  "session-color": {
+    description: "Auto-tints terminal tabs per project directory (iTerm2 + basic title)",
+    install(tsxBin) {
+      const script = join(PACKAGE_ROOT, "hooks", "session-color", "src", "session-color.ts");
+      const colorCmd = `"${tsxBin}" "${script}"`;
+      const settings = readSettings();
+      settings.hooks ??= {};
+      if (!Array.isArray(settings.hooks.SessionStart)) settings.hooks.SessionStart = [];
+      settings.hooks.SessionStart = settings.hooks.SessionStart.filter(
+        e => !e.hooks?.some(h => h.command?.includes("session-color.ts"))
+      );
+      settings.hooks.SessionStart.push({
+        hooks: [{ type: "command", command: colorCmd, timeout: 5, statusMessage: "Setting session color..." }],
+      });
+      writeSettings(settings);
+      console.log(`  Wired SessionStart hook into ${SETTINGS}`);
+    },
+    uninstall() {
+      const settings = readSettings();
+      settings.hooks ??= {};
+      const prior = Array.isArray(settings.hooks.SessionStart) ? settings.hooks.SessionStart : [];
+      const filtered = prior.filter(e => !e.hooks?.some(h => h.command?.includes("session-color.ts")));
+      if (filtered.length < prior.length) {
+        if (filtered.length === 0) {
+          delete settings.hooks.SessionStart;
+          if (Object.keys(settings.hooks).length === 0) delete settings.hooks;
+        } else {
+          settings.hooks.SessionStart = filtered;
+        }
+        writeSettings(settings);
+        console.log("  Removed SessionStart hook.");
+      } else {
+        console.log("  SessionStart hook was not installed.");
+      }
+    },
+  },
+
   advisor: {
     description: "Recommends switching Claude model tier based on task complexity",
     install(tsxBin) {
