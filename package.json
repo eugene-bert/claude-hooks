@@ -13,7 +13,7 @@
     "version": "node -e \"const fs=require('fs');['hooks/notify/package.json','hooks/advisor/package.json','hooks/session-color/package.json'].forEach(f=>{const p=JSON.parse(fs.readFileSync(f,'utf8'));p.version=process.env.npm_new_version;fs.writeFileSync(f,JSON.stringify(p,null,2)+'\\n');});\" && git add hooks/notify/package.json hooks/advisor/package.json hooks/session-color/package.json"
   },
   "dependencies": {
-    "@anthropic-ai/bedrock-sdk": "^0.33.4",
+    "@anthropic-ai/bedrock-sdk": "^0.35.0",
     "@anthropic-ai/sdk": "^0.107.0",
     "@anthropic-ai/vertex-sdk": "^0.21.0",
     "tsx": "^4.19.0",
